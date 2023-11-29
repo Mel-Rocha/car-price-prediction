@@ -1,12 +1,14 @@
 import pandas as pd 
 import numpy as np
+import os
 import re
 import joblib
 
 
-MODEL_NAME = 'best_model.pkl'
-SCALER_NAME = ''
-OHE_NAME = ''
+MODEL_NAME = os.path.join('models', 'ridge_best_model.pkl')
+SCALER_NAME = os.path.join('models', 'scaler.pkl')
+OHE_NAME = os.path.join('models', 'one_hot_encoder.pkl')
+
 
 def convert_to_kmpl(mileage):
     """
@@ -17,7 +19,8 @@ def convert_to_kmpl(mileage):
         return mil * 0.75
     else:
         return mil
-    
+
+
 def convert_to_numeric(df):
     df['engine'] = df['engine'].apply(lambda x: str(x).split()[0])
     df['mileage'] = df['mileage'].apply(convert_to_kmpl)
@@ -27,13 +30,6 @@ def convert_to_numeric(df):
     for col in numeric_cols:
         df[col] = pd.to_numeric(df[col], errors='coerce')
 
-def fill_with_median(df_train, df_test, cols=['engine', 'max_power','mileage','torque','max_torque_rpm']):
-    medians = df_train[cols].median()
-    seat_mode = df_train['seats'].mode()[0]
-    df_train[cols] = df_train[cols].fillna(medians)
-    df_train['seats'] = df_train['seats'].fillna(seat_mode)
-    df_test[cols] = df_test[cols].fillna(medians)    
-    df_test['seats'] = df_test['seats'].fillna(seat_mode)
 
 def split_torque_column(row: str):
     if pd.isna(row):
@@ -52,6 +48,7 @@ def split_torque_column(row: str):
     max_torque_rpm = float(numbers[-1]) if not '+/-' in row else float(numbers[-2])
 
     return torque, max_torque_rpm
+
 
 def one_hot_enc(df, cat_cols, ohe=None, model_path='ohe_model.pkl'):
     if ohe is None:

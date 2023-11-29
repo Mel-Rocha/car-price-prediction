@@ -1,13 +1,17 @@
-from fastapi import FastAPI, FileResponse
+from fastapi import FastAPI, UploadFile
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import List
+import io
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LinearRegression
-from funcs import *
+import numpy as np
+from utils.funcs import *
 import joblib
 import os
-import pickle
+
+model = joblib.load(MODEL_NAME)
+scaler = joblib.load(SCALER_NAME)
+ohe = joblib.load(OHE_NAME)
 
 app = FastAPI()
 
@@ -31,16 +35,18 @@ class Item(BaseModel):
 class Items(BaseModel):
     objects: List[Item]
 
+class ItemFile(BaseModel):
+    file: UploadFile
+
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the car price prediction service!"}
 
 @app.post("/predict_item")
 def predict_item(item: Item) -> float:
-    input_data = pd.DataFrame([item.dict()])
+    input_data = pd.DataFrame.from_dict(item.model_dump())
     input_features = preprocess_input_data(input_data)
 
-    model = load_model(MODEL_NAME)
     prediction = model.predict(input_features)
     fin_predictions = np.round(np.exp(prediction), 2)
 
@@ -48,38 +54,38 @@ def predict_item(item: Item) -> float:
 
 
 @app.post("/predict_items")
-def predict_items(items: Items) -> List[float]:
-    data_result = items.copy()
-    input_data = pd.DataFrame([item.dict() for item in items.objects])
-    input_features = preprocess_input_data(input_data)
-    # remove selling_price
-    # elastig regression
-    model = load_model(MODEL_NAME)
+def predict_items(file: UploadFile) -> FileResponse:
+    content = file.file.read()
+    data = pd.read_csv(io.BytesIO(content))
+    file.file.close()
+
+    data_result = data.copy()
+    input_features = preprocess_input_data(data)
+
     predictions = model.predict(input_features)
     fin_predictions = np.round(np.exp(predictions), 2)
 
     data_result['predictions'] = fin_predictions
     data_result.to_csv(index=False)
-    return FileResponse(path='prediction.csv', media_type='text/csv', filename='predictions_for_items.csv')
+    return FileResponse(path='test_sample.csv',
+                        media_type='text/csv',
+                        filename='predictions_for_test.csv')
 
 
 def preprocess_input_data(data: pd.DataFrame) -> pd.DataFrame:
-    # Implement your preprocessing steps here (e.g., handle categorical variables, scaling, etc.)
-    # ...
-    data.drop('selling_price', axis=1, inplace=True)
+    data.drop(['selling_price', 'name'], axis=1, inplace=True)
     convert_to_numeric(data)
-    data['seats'] = data['seats'].astype('cateogory')
     data[['torque', 'max_torque_rpm']] = data['torque'].apply(lambda x: pd.Series(split_torque_column(x)))
-    fill_with_median() # надо медианы из трейна загрузить
-
 
     # add features
     data['year_sq'] = data['year'] ** 2
-    data['per_l']
+    data['power_per_l'] = data['max_power'] / data['engine']
+
     cat_cols = list(data.describe(include='object').columns)
-    
-    ohe = load_model(OHE_NAME)
-    scaler = load_model(SCALER_NAME)
+    cat_cols.append('seats')
+
+    for col in cat_cols:
+        data[col] = data[col].astype('category')
 
     cat_data = one_hot_enc(data, cat_cols, ohe)
     processed_data = scaler.transform(cat_data)
@@ -87,9 +93,10 @@ def preprocess_input_data(data: pd.DataFrame) -> pd.DataFrame:
     return processed_data
 
 
-def load_model(file_name: str , directory='models') -> LinearRegression:
-
-    file_path = os.path.join(os.getcwd(), directory, file_name)
-    with open(file_path, 'rb') as file:
-        model = pickle.load(file)
-    return model    
+# def load_model(file_name: str, directory='models'):
+#
+#     file_path = os.path.join(os.getcwd(), directory, file_name)
+#     print(file_path)
+#     with open(file_path, 'rb') as file:
+#         model = pickle.load(file)
+#     return model
