@@ -3,11 +3,8 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import List
 import io
-import pandas as pd
-import numpy as np
 from utils.funcs import *
 import joblib
-import os
 
 model = joblib.load(MODEL_NAME)
 scaler = joblib.load(SCALER_NAME)
@@ -44,7 +41,7 @@ def read_root():
 
 @app.post("/predict_item")
 def predict_item(item: Item) -> float:
-    input_data = pd.DataFrame.from_dict(item.model_dump())
+    input_data = pd.DataFrame.from_dict([item.model_dump()])
     input_features = preprocess_input_data(input_data)
 
     prediction = model.predict(input_features)
@@ -66,8 +63,8 @@ def predict_items(file: UploadFile) -> FileResponse:
     fin_predictions = np.round(np.exp(predictions), 2)
 
     data_result['predictions'] = fin_predictions
-    data_result.to_csv(index=False)
-    return FileResponse(path='test_sample.csv',
+    data_result.to_csv('predictions_for_test.csv', index=False)
+    return FileResponse(path='predictions_for_test.csv',
                         media_type='text/csv',
                         filename='predictions_for_test.csv')
 
@@ -78,12 +75,13 @@ def preprocess_input_data(data: pd.DataFrame) -> pd.DataFrame:
     data[['torque', 'max_torque_rpm']] = data['torque'].apply(lambda x: pd.Series(split_torque_column(x)))
 
     # add features
-    data['year_sq'] = data['year'] ** 2
     data['power_per_l'] = data['max_power'] / data['engine']
+    data['sq_year'] = data['year'] ** 2
 
     cat_cols = list(data.describe(include='object').columns)
     cat_cols.append('seats')
 
+    print(cat_cols)
     for col in cat_cols:
         data[col] = data[col].astype('category')
 
@@ -91,12 +89,3 @@ def preprocess_input_data(data: pd.DataFrame) -> pd.DataFrame:
     processed_data = scaler.transform(cat_data)
 
     return processed_data
-
-
-# def load_model(file_name: str, directory='models'):
-#
-#     file_path = os.path.join(os.getcwd(), directory, file_name)
-#     print(file_path)
-#     with open(file_path, 'rb') as file:
-#         model = pickle.load(file)
-#     return model
