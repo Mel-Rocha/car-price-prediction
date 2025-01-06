@@ -7,7 +7,7 @@ def custom_openapi(app):
 
     openapi_schema = get_openapi(
         title="API Predict Car Price",
-        version="0.0",
+        version="1.0",
         description="This is project documentation for Regression Linear Model",
         routes=app.routes,
     )
