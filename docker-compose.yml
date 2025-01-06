@@ -16,8 +16,8 @@ services:
     container_name: nginx-artificial-intelligence
     image: nginx:latest
     ports:
-      - "8087:80"
-      - "4447:443"
+      - "8086:80"
+      - "4446:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./ssl:/etc/nginx/ssl
