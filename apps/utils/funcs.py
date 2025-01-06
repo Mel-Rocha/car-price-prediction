@@ -5,11 +5,6 @@ import re
 import joblib
 
 
-MODEL_NAME = os.path.join('models', 'ridge_best_model.pkl')
-SCALER_NAME = os.path.join('models', 'scaler.pkl')
-OHE_NAME = os.path.join('models', 'one_hot_encoder.pkl')
-
-
 def convert_to_kmpl(mileage):
     """
     Convert mileage column with units to float with values
