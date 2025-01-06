@@ -1,3 +1,4 @@
+import joblib
 import numpy as np
 import pandas as pd
 from fastapi.responses import FileResponse
@@ -9,9 +10,10 @@ from apps.utils.funcs import one_hot_enc, convert_to_numeric, split_torque_colum
 
 from settings import MODEL_NAME, SCALER_NAME, OHE_NAME
 
-model = MODEL_NAME
-scaler = SCALER_NAME
-ohe = OHE_NAME
+model = joblib.load(MODEL_NAME)
+scaler = joblib.load(SCALER_NAME)
+ohe = joblib.load(OHE_NAME)
+
 
 from fastapi import APIRouter, UploadFile
 
