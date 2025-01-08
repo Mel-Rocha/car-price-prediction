@@ -2,6 +2,8 @@ from typing import List
 from pydantic import BaseModel, validator
 from fastapi import  UploadFile
 
+from apps.car.utils import validate_torque
+
 
 class Item(BaseModel):
     name: str
@@ -26,6 +28,13 @@ class Item(BaseModel):
                 raise ValueError("Mileage deve estar no formato 'valor unidade', como '23.4 kmpl'.")
         except Exception as e:
             raise ValueError(f"Mileage inválido: {value}. {str(e)}")
+        return value
+
+    @validator("torque")
+    def validate_torque_format(cls, value):
+        if not validate_torque(value):
+            raise ValueError("O torque deve estar no formato '250Nm@4500rpm', '190Nm@ 2000rpm', '350Nm@1750-2500rpm', "
+                             "'51Nm@4000+/-500rpm', '350Nm', or '4500rpm'")
         return value
 
 
