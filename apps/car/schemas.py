@@ -37,6 +37,13 @@ class Item(BaseModel):
                              "'51Nm@4000+/-500rpm', '350Nm', or '4500rpm'")
         return value
 
+    @validator("fuel")
+    def validate_fuel(cls, value):
+        allowed_fuels = {'Diesel', 'Petrol', 'LPG', 'CNG'}
+        if value not in allowed_fuels:
+            raise ValueError(f"O combustível deve ser um dos: {allowed_fuels}")
+        return value
+
 
 class Items(BaseModel):
     objects: List[Item]
