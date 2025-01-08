@@ -37,11 +37,41 @@ class Item(BaseModel):
                              "'51Nm@4000+/-500rpm', '350Nm', or '4500rpm'")
         return value
 
+
+    #  validation on categorical data
     @validator("fuel")
     def validate_fuel(cls, value):
         allowed_fuels = {'Diesel', 'Petrol', 'LPG', 'CNG'}
         if value not in allowed_fuels:
             raise ValueError(f"O combustível deve ser um dos: {allowed_fuels}")
+        return value
+
+    @validator("transmission")
+    def validate_transmission(cls, value):
+        allowed_transmissions = {'Manual', 'Automatic'}
+        if value not in allowed_transmissions:
+            raise ValueError(f"A transmissão deve ser uma das: {allowed_transmissions}")
+        return value
+
+    @validator("seller_type")
+    def validate_seller_type(cls, value):
+        allowed_seller_types = {'Individual', 'Dealer', 'Trustmark Dealer'}
+        if value not in allowed_seller_types:
+            raise ValueError(f"O tipo de vendedor deve ser um dos: {allowed_seller_types}")
+        return value
+
+    @validator("owner")
+    def validate_owner(cls, value):
+        allowed_owners = {'First Owner', 'Second Owner', 'Third Owner', 'Fourth & Above Owner', 'Test Drive Car'}
+        if value not in allowed_owners:
+            raise ValueError(f"O proprietário deve ser um dos: {allowed_owners}")
+        return value
+
+    @validator("seats")
+    def validate_seats(cls, value):
+        allowed_seats = {5.0, 4.0, 7.0, 8.0, 6.0, 9.0, 10.0, 14.0, 2.0}
+        if value not in allowed_seats:
+            raise ValueError(f"O número de assentos deve ser um dos: {allowed_seats}")
         return value
 
 
