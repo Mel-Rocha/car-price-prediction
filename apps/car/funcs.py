@@ -1,8 +1,8 @@
-import pandas as pd 
-import numpy as np
-import os
 import re
+
 import joblib
+import pandas as pd
+import numpy as np
 
 
 def convert_to_kmpl(mileage):
@@ -62,4 +62,3 @@ def one_hot_enc(df, cat_cols, ohe=None, model_path='ohe_model.pkl'):
     df_result = pd.concat([num_features, df_encoded], axis=1)
 
     return df_result
-

@@ -1,21 +1,20 @@
+import io
+
 import joblib
 import numpy as np
 import pandas as pd
+from fastapi import APIRouter, UploadFile
 from fastapi.responses import FileResponse
 
-import io
-
 from apps.car.schemas import Item
-from apps.utils.funcs import one_hot_enc, convert_to_numeric, split_torque_column
-
 from settings import MODEL_NAME, SCALER_NAME, OHE_NAME
+from apps.car.funcs import one_hot_enc, convert_to_numeric, split_torque_column
+
 
 model = joblib.load(MODEL_NAME)
 scaler = joblib.load(SCALER_NAME)
 ohe = joblib.load(OHE_NAME)
 
-
-from fastapi import APIRouter, UploadFile
 
 router = APIRouter()
 

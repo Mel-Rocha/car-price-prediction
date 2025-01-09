@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from apps.docs import routes as docs_router
 from apps.car import routes as car_router
+from apps.docs import routes as docs_router
 from apps.auth.middlewares import AuthMiddleware
 from apps.docs.custom_openai import custom_openapi
 

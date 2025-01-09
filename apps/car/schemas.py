@@ -1,7 +1,8 @@
 import re
 from typing import List
-from pydantic import BaseModel, validator
+
 from fastapi import  UploadFile
+from pydantic import BaseModel, validator
 
 from apps.car.utils import validate_torque
 
