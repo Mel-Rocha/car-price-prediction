@@ -139,9 +139,42 @@
 3. Логгинг в сервисе 
 
 
+------
 ## Environment Variables
+1. Create a .env file
 ```bash
 SECRET_KEY="your-secure-secret-key"
 AUTH_TOKEN="your-secure-auth-token"
 
+```
+
+## Run the project
+2. Create a virtual environment and activate it
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+3. Install the required packages
+```bash
+pip install -r requirements.txt
+```
+
+4. Run the project from Docker
+```bash
+docker compose up --build
+```
+
+5. Open the API documentation in your browser
+```bash
+http://0.0.0.0:8086/docs
+```
+
+4.1. Run the project locally - If you want to run locally
+```bash
+uvicorn main:app --reload
+```
+
+5.1. Open the API documentation in your browser
+```bash
+http://127.0.0.1:8000/docs
 ```
