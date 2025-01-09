@@ -1,3 +1,4 @@
+import re
 from typing import List
 from pydantic import BaseModel, validator
 from fastapi import  UploadFile
@@ -37,6 +38,18 @@ class Item(BaseModel):
                              "'51Nm@4000+/-500rpm', '350Nm', or '4500rpm'")
         return value
 
+    @validator("max_power")
+    def validate_max_power(cls, value):
+        if not re.match(r'^\d+(\.\d+)? bhp$', value):
+            raise ValueError("max_power deve estar no formato 'numero bhp', como '75 bhp'.")
+        return value
+
+    @validator("km_driven")
+    def validate_km_driven(cls, value):
+        if len(str(value)) > 19:
+            raise ValueError("km_driven deve ter no máximo 19 dígitos. Dica: use uma média de 5 digitos"
+                             "para obter um resultado mais preciso.")
+        return value
 
     #  validation on categorical data
     @validator("fuel")
