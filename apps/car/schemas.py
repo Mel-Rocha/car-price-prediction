@@ -51,6 +51,12 @@ class Item(BaseModel):
                              "para obter um resultado mais preciso.")
         return value
 
+    @validator("year")
+    def validate_year(cls, value):
+        if value < 1900 or value > 2100:  # Assuming cars are not older than 1886 and not from the future
+            raise ValueError("Ano fora do intervalo permitido: 1900 à 2100.")
+        return value
+
     #  validation on categorical data
     @validator("fuel")
     def validate_fuel(cls, value):
